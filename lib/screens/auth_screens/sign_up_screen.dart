@@ -44,12 +44,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     try {
       auth.createUserWithEmailAndPassword(email:  emailId, password: password).then((value) => {
 
-        users
-            .add({
+        users.doc(value.user?.uid).set({
           'id':value.user?.uid,
           'full_name': name,
         })
-            .then((value) => print("User Added"))
+            .then((value) => _showErrorDialog("User Registered"))
       });
     }   catch (error)  {
       _showErrorDialog(error.toString());
