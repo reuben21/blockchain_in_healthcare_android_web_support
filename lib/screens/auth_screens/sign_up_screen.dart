@@ -1,5 +1,8 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../providers/patient.dart';
 import 'login_screen.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +24,8 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  FirebaseAuth auth = FirebaseAuth.instance;
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
 
 
   @override
@@ -35,6 +40,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final _formKey = GlobalKey<FormBuilderState>();
 
+  void _submit(String name,String emailId,String password) async {
+    try {
+      auth.createUserWithEmailAndPassword(email:  emailId, password: password).then((value) => {
+
+        users
+            .add({
+          'id':value.user?.uid,
+          'full_name': name,
+        })
+            .then((value) => print("User Added"))
+      });
+    }   catch (error)  {
+      _showErrorDialog(error.toString());
+
+    }
+
+
+  }
+
+
+  void _showErrorDialog(String message) {
+    showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('An Error Occurred'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+                child: Text('Okay'))
+          ],
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,141 +103,106 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       const SizedBox(
                         height: 5,
                       ),
-                      const SizedBox(height: 35,),
-                      FormBuilderTextField(
-                        maxLines: 1,
-                        name: 'name',
-                        decoration: const InputDecoration(
+                      Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: FormBuilderTextField(
 
-                          prefixIcon: Icon(Icons.badge),
-                          border: OutlineInputBorder(),
-                          labelText: 'Username',
-                          labelStyle: TextStyle(
-                            color: Color(0xFF6200EE),
-                          ),
-                          helperText: 'Helper text',
+                            maxLines: 1,
+                            name: 'name',
+                            decoration: InputDecoration(
+                              labelText:'Full Name',
+                              prefixIcon:
+                              Icon(Icons.person_outlined,color: Theme.of(context).primaryColor,),
+                              border: const OutlineInputBorder(),
+                              labelStyle: const TextStyle(
+                                color: Color(0xFF6200EE),
+                              ),
+                              errorBorder: const OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                              focusedErrorBorder: const OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                              enabledBorder: const OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                            ),
 
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFF6200EE)),
-                          ),
-                        ),
+                            // valueTransformer: (text) => num.tryParse(text),
+                            validator: FormBuilderValidators.compose(
+                                [FormBuilderValidators.required(context)]),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: FormBuilderTextField(
 
-                        // valueTransformer: (text) => num.tryParse(text),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.max(context, 20),
-                        ]),
-                        keyboardType: TextInputType.name,
-                      ),
-                      const SizedBox(height: 15,),
-                      FormBuilderTextField(
-                        maxLines: 1,
-                        name: 'emailId',
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.email),
-                          border: OutlineInputBorder(),
-                          labelText: 'Email ID',
-                          labelStyle: TextStyle(
-                            color: kSecondaryColor,
-                          ),
-                          helperText: 'Enter email Id',
+                            maxLines: 1,
+                            name: 'emailId',
+                            decoration: const InputDecoration(
+                              labelText:'Email ID',
+                              prefixIcon:
+                              Icon(Icons.alternate_email_outlined),
+                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(
+                                color: Color(0xFF6200EE),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                            ),
 
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFF6200EE)),
-                          ),
-                        ),
+                            // valueTransformer: (text) => num.tryParse(text),
+                            validator: FormBuilderValidators.compose(
+                                [FormBuilderValidators.required(context)]),
+                          )),
+                      Padding(
+                          padding: const EdgeInsets.all(15),
+                          child: FormBuilderTextField(
+                            obscureText: true,
+                            maxLines: 1,
+                            name: 'password',
+                            decoration: InputDecoration(
+                              labelText:'Password',
+                              prefixIcon:
+                              Icon(Icons.password,color: Theme.of(context).primaryColor,),
+                              border: const OutlineInputBorder(),
+                              labelStyle: const TextStyle(
+                                color: Color(0xFF6200EE),
+                              ),
+                              errorBorder: const OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                              focusedErrorBorder: const OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                              enabledBorder: const OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                            ),
 
-                        // valueTransformer: (text) => num.tryParse(text),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.max(context, 20),
-                        ]),
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 15,),
-
-                      FormBuilderTextField(
-                        maxLines: 1,
-                        name: 'PIN',
-                        obscureText: true,
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.password),
-                          labelText: 'PIN',
-                          border: OutlineInputBorder(),
-                          labelStyle: TextStyle(
-                            color: Color(0xFF6200EE),
-                          ),
-                          helperText: 'Enter a 6 Digit PIN',
-
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFF6200EE)),
-                          ),
-                        ),
-
-                        // valueTransformer: (text) => num.tryParse(text),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
+                            // valueTransformer: (text) => num.tryParse(text),
+                            validator: FormBuilderValidators.compose(
+                                [FormBuilderValidators.required(context)]),
+                          )),
 
 
-                          FormBuilderValidators.maxLength(context, 6)
-                        ]),
-                        keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 15,),
-                      FormBuilderTextField(
-                        maxLines: 1,
-                        name: 'hospitalAddress',
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.local_hospital,
-                          ),
-                          labelText: 'Hospital Address',
-                          border: OutlineInputBorder(),
-                          labelStyle: TextStyle(
-                            color: Color(0xFF6200EE),
-                          ),
-                          helperText: 'Enter Hex Hospital Address',
 
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFF6200EE)),
-                          ),
-                        ),
 
-                        // valueTransformer: (text) => num.tryParse(text),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-
-                        ]),
-
-                      ),
-                      const SizedBox(height: 15,),
-                      FormBuilderTextField(
-                        maxLines: 1,
-                        name: 'privateAddress',
-                        decoration: const InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.account_balance_wallet,
-                          ),
-                          labelText: 'Your Private Address',
-                          border: OutlineInputBorder(),
-                          labelStyle: TextStyle(
-                            color: Color(0xFF6200EE),
-                          ),
-                          helperText: 'Enter Hex Private Address',
-
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFF6200EE)),
-                          ),
-                        ),
-
-                        // valueTransformer: (text) => num.tryParse(text),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-
-                        ]),
-
-                      ),
-                      const SizedBox(height: 15,),
 
                     ],
                   ),
@@ -211,39 +216,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             //Center Row contents vertically,
             children: <Widget>[
-              MaterialButton(
-                minWidth: 50.0,
-                color: Theme
-                    .of(context)
-                    .accentColor,
-                child: const Text(
-                  "Submit",
-                  style: TextStyle(color: kSecondaryColor),
-                ),
+              FloatingActionButton.extended(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.secondary,
                 onPressed: () async {
                   _formKey.currentState?.save();
                   if (_formKey.currentState?.validate() != null) {
 
+
+                    _submit(_formKey.currentState?.value["name"],_formKey.currentState?.value["emailId"],_formKey.currentState?.value["password"]);
+
+
+
+
                   } else {
                     print("validation failed");
                   }
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => WalletLogin(),
+                  //   ),
+                  // );
                 },
-              ),
-              MaterialButton(
-                minWidth: 50.0,
-                color: Theme
-                    .of(context)
-                    .colorScheme.secondary,
-                child: const Text(
-                  "Login",
-                  style: TextStyle(color: kSecondaryColor),
-                ),
-                onPressed: () async {
-                  Navigator.push(context,MaterialPageRoute(builder: (context) => LoginScreen()),);
-                },
+                icon: Image.asset("assets/icons/sign_in.png",color: Theme.of(context).backgroundColor,width: 32,height: 32,),
+                label: const Text('Register'),
               ),
 
-              SizedBox(width: 20),
+
+
+
+
 
             ],
           )

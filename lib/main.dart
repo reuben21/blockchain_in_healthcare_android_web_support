@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:bic_android_web_support/databases/hive_database.dart';
 import 'package:bic_android_web_support/screens/auth_screens/login_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../providers/ipfs.dart';
@@ -30,6 +31,7 @@ import 'package:provider/provider.dart';
 // ignore_for_file: prefer_const_constructors
 Future<void> main() async {
    WidgetsFlutterBinding.ensureInitialized();
+   await Firebase.initializeApp();
 
   await Hive.initFlutter();
 
